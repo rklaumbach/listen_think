@@ -1,17 +1,23 @@
 # 🎙️ Listen & Think
 
-A powerful voice recorder web application with real-time transcription and AI-generated notes for productivity.
+A powerful voice recorder web application with **real-time transcription** and **AI-powered intelligent notes** for maximum productivity.
 
 ## ✨ Features
 
 - **🎤 Voice Recording**: Record your voice directly in the browser
-- **📝 Real-time Transcription**: Automatic verbatim transcription as you speak
-- **💡 Smart Notes**: Auto-generated notes with key points, action items, and questions
-- **🔄 Auto-Update**: Notes automatically update at customizable intervals
-- **📚 Session History**: Save and revisit previous recordings
+- **📝 Real-time Transcription**: Automatic verbatim transcription as you speak using Web Speech API
+- **🤖 AI-Powered Notes**: Intelligent notes with actual insights, not just text extraction
+  - Rephrases and corrects grammar from speech-to-text
+  - Generates executive summaries
+  - Extracts actionable items and key decisions
+  - Identifies questions and important details
+  - Professional, well-structured output
+- **🔄 Auto-Update**: Notes automatically regenerate at customizable intervals
+- **🔌 Multiple AI Providers**: Support for OpenAI, Anthropic (Claude), OpenRouter, and local LLMs
+- **📚 Session History**: Save and revisit previous recordings with AI notes
 - **📋 Copy to Clipboard**: Easy copying of transcripts and notes
-- **🌙 Dark Theme**: Easy on the eyes with a modern dark interface
-- **💾 Local Storage**: All data stored locally in your browser
+- **🌙 Dark Theme**: Modern, easy-on-the-eyes interface
+- **🔒 Privacy First**: All data stored locally in your browser, API keys never leave your machine
 
 ## 🚀 Getting Started
 
@@ -19,6 +25,7 @@ A powerful voice recorder web application with real-time transcription and AI-ge
 
 - A modern web browser (Chrome or Edge recommended for best speech recognition)
 - Microphone access
+- API key for your chosen AI provider (or local LLM setup)
 
 ### Installation
 
@@ -30,10 +37,10 @@ cd listen_think
 
 2. Start a local server:
 ```bash
-npm start
-# or
 python3 -m http.server 8000
-# or any other local server
+# or
+npm start
+# or use any other local server
 ```
 
 3. Open your browser and navigate to:
@@ -41,58 +48,133 @@ python3 -m http.server 8000
 http://localhost:8000
 ```
 
-4. Grant microphone access when prompted
+4. Configure your AI provider (see AI Configuration below)
+5. Grant microphone access when prompted
+
+## 🤖 AI Configuration
+
+The app supports multiple AI providers for generating intelligent notes:
+
+### Option 1: OpenAI (Recommended for beginners)
+
+1. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. In the app, click "⚙️ AI Configuration"
+3. Select "OpenAI (GPT-4/3.5)"
+4. Enter your API key
+5. Choose a model:
+   - **GPT-4o** - Best quality (recommended)
+   - **GPT-4o Mini** - Faster and cheaper
+   - **GPT-3.5 Turbo** - Most affordable
+6. Click "Save Configuration"
+7. Click "Test API" to verify
+
+**Cost**: ~$0.01-0.05 per recording session (depending on length and model)
+
+### Option 2: Anthropic (Claude)
+
+1. Get an API key from [Anthropic Console](https://console.anthropic.com/)
+2. Select "Anthropic (Claude)" in AI Configuration
+3. Enter your API key
+4. Choose a model:
+   - **Claude 3.5 Sonnet** - Best balance (recommended)
+   - **Claude 3.5 Haiku** - Faster
+   - **Claude 3 Opus** - Most capable
+5. Save and test
+
+**Cost**: ~$0.01-0.03 per recording session
+
+### Option 3: OpenRouter (Access to multiple models)
+
+1. Get an API key from [OpenRouter](https://openrouter.ai/keys)
+2. Select "OpenRouter" in AI Configuration
+3. Enter your API key
+4. Choose from various models (Claude, GPT-4, Gemini, Llama, etc.)
+5. Save and test
+
+**Cost**: Varies by model, starting from ~$0.001 per session
+
+### Option 4: Local LLM (Free, private, offline)
+
+For complete privacy and zero API costs, run a local LLM:
+
+1. **Install Ollama** (easiest):
+   ```bash
+   # macOS/Linux
+   curl -fsSL https://ollama.ai/install.sh | sh
+
+   # Pull a model
+   ollama pull llama3.1
+   ```
+
+2. **Or install LM Studio**: Download from [lmstudio.ai](https://lmstudio.ai)
+
+3. In the app:
+   - Select "Local API (Ollama/LM Studio)"
+   - Enter your local API URL (default: `http://localhost:11434/api/generate`)
+   - Save and test
+
+**Pros**: Free, private, works offline
+**Cons**: Requires powerful hardware, slower than cloud APIs
 
 ## 📖 How to Use
+
+### Initial Setup
+
+1. Click **⚙️ AI Configuration** at the top
+2. Configure your preferred AI provider
+3. Test the connection
+4. You're ready to record!
 
 ### Recording
 
 1. Click **"Start Recording"** to begin
-2. Speak naturally - the transcription will appear in real-time
-3. Click **"Stop Recording"** when finished
+2. Speak naturally - transcription appears in real-time
+3. Watch as AI generates intelligent notes automatically
+4. Click **"Stop Recording"** when finished
 
-### Transcription
+### Transcription Panel (Left)
 
-- The **left panel** shows your verbatim transcription
-- Text appears as you speak
-- Final text is shown in regular font, interim results in italic
-- Click 📋 to copy the transcript to clipboard
+- Shows verbatim speech-to-text transcription
+- Final text in regular font
+- Interim results in italic (gray)
+- Click 📋 to copy raw transcript
 
-### Notes
+### Smart Notes Panel (Right)
 
-- The **right panel** displays AI-generated notes including:
-  - 📋 Summary of key points
-  - ✅ Action items (tasks, to-dos)
-  - ❓ Questions raised
-  - 🔢 Key numbers and dates
-  - 📊 Word count
+**With AI configured**, you get:
+- 📝 **Executive Summary**: Cleaned-up overview with corrected grammar
+- 🎯 **Key Points**: Main ideas rephrased clearly
+- ✅ **Action Items**: Tasks and to-dos extracted
+- 💡 **Important Details**: Numbers, dates, names highlighted
+- ❓ **Questions & Decisions**: Critical points identified
 
-- **Auto-update**: Notes refresh automatically every 30 seconds (customizable)
-- **Manual update**: Click "Update Notes" anytime
-- Click 📋 to copy notes to clipboard
-
-### Session History
-
-- All recordings are automatically saved
-- Click any previous session to view its transcript and notes
-- Up to 20 most recent sessions are stored
-- Click 🗑️ to clear history
+**Without AI**, falls back to basic text extraction (less intelligent)
 
 ### Controls
 
-- **Clear All**: Reset current transcription and notes
-- **Auto-update toggle**: Enable/disable automatic note updates
-- **Update interval**: Set how often notes refresh (10-300 seconds)
+- **Update Notes**: Manually regenerate AI notes
+- **Auto-update**: Toggle automatic note generation every X seconds
+- **Update interval**: Set how often (10-300 seconds)
+- **Clear All**: Reset current session
+- **Copy**: Copy transcript or notes to clipboard
+
+### Session History
+
+- All recordings automatically saved with AI notes
+- Click any session to reload it
+- Up to 20 recent sessions stored locally
+- Click 🗑️ to clear history
 
 ## 🛠️ Technical Details
 
 ### Technologies Used
 
-- **Web Audio API**: For audio recording
-- **Web Speech API**: For speech-to-text transcription
-- **LocalStorage**: For session persistence
-- **Vanilla JavaScript**: No dependencies required
-- **Modern CSS**: Responsive design with CSS Grid
+- **Web Audio API**: Browser-based audio recording
+- **Web Speech API**: Real-time speech-to-text
+- **AI APIs**: OpenAI, Anthropic, OpenRouter, or local LLMs
+- **LocalStorage**: Session persistence (100% local)
+- **Vanilla JavaScript**: No dependencies, lightweight
+- **Modern CSS**: Responsive dark theme
 
 ### Browser Compatibility
 
@@ -100,98 +182,164 @@ http://localhost:8000
 |---------|--------|------|---------|--------|
 | Recording | ✅ | ✅ | ✅ | ✅ |
 | Transcription | ✅ | ✅ | ⚠️ Limited | ⚠️ Limited |
+| AI Notes | ✅ | ✅ | ✅ | ✅ |
 
-**Note**: Speech recognition works best in Chrome and Edge. Firefox and Safari have limited support for the Web Speech API.
+**Note**: Speech recognition works best in Chrome and Edge.
 
-### Data Privacy
+### Data Privacy & Security
 
-- **100% Local**: All data is stored in your browser's LocalStorage
-- **No Server**: No data is sent to any server
-- **No Account Required**: No sign-up or login needed
-- **Offline Capable**: Works offline once loaded (except speech recognition needs internet)
+- **✅ 100% Local Data**: All transcripts and notes stored in browser LocalStorage
+- **✅ No Server**: App runs entirely in your browser
+- **✅ Secure API Keys**: Keys stored locally, never sent anywhere except chosen AI provider
+- **✅ HTTPS Required**: AI APIs require HTTPS (use `localhost` or secure hosting)
+- **✅ No Tracking**: Zero analytics or data collection
+- **⚠️ API Provider Privacy**: When using cloud AI, transcripts are sent to the AI provider (OpenAI, Anthropic, etc.) for processing. Use local LLM for complete privacy.
 
 ## 💡 Use Cases
 
-- **Meeting Notes**: Record meetings and get instant summaries
-- **Brainstorming**: Capture ideas and automatically organize them
-- **Interviews**: Transcribe interviews with automatic question detection
-- **Lectures**: Record lectures and extract key points
-- **Voice Journaling**: Daily voice journals with searchable transcripts
-- **Task Planning**: Speak your tasks and get them organized
+- **Meeting Notes**: Record meetings, get instant AI summaries and action items
+- **Brainstorming**: Capture ideas, let AI organize and clarify them
+- **Interviews**: Transcribe interviews with automatic question extraction
+- **Lectures**: Record lectures, get structured notes automatically
+- **Voice Journaling**: Daily journals with AI-enhanced insights
+- **Task Planning**: Speak your tasks, get them organized by AI
 - **Content Creation**: Draft blog posts, scripts, or articles by speaking
+- **Research**: Capture thoughts during research, AI organizes key findings
 
 ## 🎯 Tips for Best Results
 
-1. **Speak Clearly**: Enunciate for better transcription accuracy
-2. **Pause Between Ideas**: Helps with sentence detection and note organization
-3. **Use Action Words**: Say "need to", "should", "must" for action item detection
-4. **Ask Questions**: End questions with "?" for automatic question extraction
-5. **Mention Numbers**: Dates, times, and numbers are automatically highlighted
-6. **Regular Updates**: Keep auto-update on for continuous note refinement
+### For Better Transcription
+1. **Speak Clearly**: Enunciate for accurate speech-to-text
+2. **Reduce Background Noise**: Use a quiet environment
+3. **Good Microphone**: Better mic = better transcription
+4. **Natural Pace**: Don't speak too fast or too slow
+5. **Chrome/Edge Browser**: Best speech recognition support
 
-## 📝 Customization
+### For Better AI Notes
+1. **Be Specific**: Mention specific tasks, dates, and names
+2. **Natural Language**: Speak as you would write
+3. **Clear Structure**: Separate different topics naturally
+4. **Longer Sessions**: AI works better with more context (>100 words)
+5. **Review & Regenerate**: Click "Update Notes" if first pass isn't perfect
 
-### Adjust Update Interval
+## 🔧 Advanced Configuration
 
-Change the auto-update interval (10-300 seconds) based on your needs:
-- **10-30s**: Fast-paced meetings or brainstorming
-- **30-60s**: Normal conversations (default: 30s)
-- **60-300s**: Long-form content or lectures
+### Customizing AI Prompts
 
-### Language Support
+Want different note formats? Edit the `generateAINotes()` function in `app.js`:
 
-To change the transcription language, modify `app.js`:
+```javascript
+const prompt = `Analyze the following voice transcript and...
+// Customize this prompt for your specific needs
+`;
+```
+
+### Changing Language
+
+To transcribe in a different language, modify `app.js`:
 
 ```javascript
 this.recognition.lang = 'en-US'; // Change to your language code
+// Examples: 'es-ES' (Spanish), 'fr-FR' (French), 'de-DE' (German)
 ```
 
-Supported languages include: `en-US`, `en-GB`, `es-ES`, `fr-FR`, `de-DE`, etc.
+### Local LLM Configuration
+
+For Ollama, use different models:
+```bash
+ollama pull llama3.1:70b     # Larger, more capable
+ollama pull mistral          # Fast, efficient
+ollama pull codellama        # Better at structured output
+```
+
+Update the API endpoint in AI Configuration if using custom ports.
 
 ## 🐛 Troubleshooting
 
 ### Microphone Not Working
-
 - Check browser permissions (camera icon in address bar)
-- Ensure microphone is not used by another application
+- Ensure mic isn't used by another app
 - Try refreshing the page
+- Check system mic settings
 
 ### Transcription Not Appearing
+- Verify internet connection (speech recognition needs internet)
+- Use Chrome or Edge browser
+- Check microphone is working
+- Speak louder or closer to mic
 
-- Check internet connection (speech recognition requires internet)
-- Use Chrome or Edge for best results
-- Speak louder or closer to the microphone
+### AI Notes Not Generating
+- Verify API key is correct in configuration
+- Click "Test API" to check connection
+- Check browser console for errors (F12)
+- Ensure you have API credits/quota remaining
+- For local LLM: verify Ollama/LM Studio is running
 
-### History Not Saving
+### "API Key Not Configured" Error
+- Click ⚙️ AI Configuration
+- Enter your API key
+- Click "Save Configuration"
+- Click "Test API" to verify
 
-- Check if LocalStorage is enabled
-- Browser may be in private/incognito mode
-- LocalStorage may be full (try clearing history)
+### Slow Note Generation
+- Switch to faster model (GPT-4o Mini, Claude Haiku)
+- Reduce update interval for auto-updates
+- Use local LLM for instant processing (with good hardware)
+
+## 💰 Cost Estimates
+
+Approximate costs per 30-minute recording session:
+
+| Provider | Model | Cost | Quality |
+|----------|-------|------|---------|
+| OpenAI | GPT-4o | $0.03-0.05 | Excellent |
+| OpenAI | GPT-4o Mini | $0.005-0.01 | Very Good |
+| OpenAI | GPT-3.5 Turbo | $0.001-0.003 | Good |
+| Anthropic | Claude 3.5 Sonnet | $0.02-0.04 | Excellent |
+| Anthropic | Claude 3.5 Haiku | $0.005-0.01 | Very Good |
+| OpenRouter | Varies | $0.001-0.05 | Varies |
+| Local (Ollama) | Free | $0.00 | Good-Excellent |
+
+*Costs depend on transcript length and note complexity*
 
 ## 📄 License
 
-MIT License - feel free to use this project for personal or commercial purposes.
+MIT License - Free for personal and commercial use
 
 ## 🤝 Contributing
 
-Contributions are welcome! Feel free to submit issues or pull requests.
+Contributions welcome! Feel free to:
+- Report bugs or issues
+- Suggest new features
+- Submit pull requests
+- Improve documentation
 
 ## 🔮 Future Enhancements
 
 Potential features for future versions:
-- Export to PDF/Markdown
-- Custom AI note templates
-- Multiple language support in UI
-- Audio file upload for transcription
-- Speaker diarization
-- Search across all sessions
-- Cloud sync option
-- Integration with note-taking apps
+- ✨ Custom AI prompt templates
+- 📤 Export to PDF/Markdown/Notion
+- 🗣️ Speaker diarization (multi-speaker detection)
+- 🌍 Multi-language support in UI
+- 🔍 Search across all sessions
+- ☁️ Optional cloud sync
+- 🎨 Customizable themes
+- 📊 Analytics dashboard (word count trends, etc.)
+- 🔗 Integration with productivity tools (Todoist, Trello, etc.)
+- 🎙️ Upload audio files for transcription
 
 ## 📞 Support
 
-If you encounter any issues or have questions, please open an issue on GitHub.
+Having issues? Check:
+1. This README's Troubleshooting section
+2. Browser console (F12) for error messages
+3. GitHub Issues for similar problems
+
+Found a bug? Please open an issue with:
+- Browser and version
+- Error message (if any)
+- Steps to reproduce
 
 ---
 
-**Enjoy productive voice recording! 🎤✨**
+**Built with ❤️ for productivity enthusiasts. Happy recording! 🎤✨**

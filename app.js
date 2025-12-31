@@ -1,4 +1,4 @@
-// Voice Recorder with Transcription and Notes
+// Voice Recorder with AI-Powered Transcription and Notes
 class VoiceRecorder {
     constructor() {
         this.isRecording = false;
@@ -10,15 +10,32 @@ class VoiceRecorder {
         this.timerInterval = null;
         this.autoUpdateInterval = null;
         this.currentSessionStart = null;
+        this.aiConfig = this.loadConfig();
 
         this.initializeElements();
         this.initializeSpeechRecognition();
         this.setupEventListeners();
         this.loadHistory();
+        this.loadSavedConfig();
     }
 
     initializeElements() {
         this.elements = {
+            // Config elements
+            toggleConfig: document.getElementById('toggleConfig'),
+            configContent: document.getElementById('configContent'),
+            aiProvider: document.getElementById('aiProvider'),
+            apiKey: document.getElementById('apiKey'),
+            toggleApiKey: document.getElementById('toggleApiKey'),
+            modelName: document.getElementById('modelName'),
+            localUrl: document.getElementById('localUrl'),
+            saveConfig: document.getElementById('saveConfig'),
+            testApi: document.getElementById('testApi'),
+            configStatus: document.getElementById('configStatus'),
+            modelOption: document.getElementById('modelOption'),
+            localUrlOption: document.getElementById('localUrlOption'),
+
+            // Recording elements
             startBtn: document.getElementById('startBtn'),
             stopBtn: document.getElementById('stopBtn'),
             clearBtn: document.getElementById('clearBtn'),
@@ -38,8 +55,29 @@ class VoiceRecorder {
         };
     }
 
+    loadConfig() {
+        const stored = localStorage.getItem('aiConfig');
+        return stored ? JSON.parse(stored) : {
+            provider: 'openai',
+            apiKey: '',
+            model: 'gpt-4o-mini',
+            localUrl: 'http://localhost:11434/api/generate'
+        };
+    }
+
+    saveConfig() {
+        localStorage.setItem('aiConfig', JSON.stringify(this.aiConfig));
+    }
+
+    loadSavedConfig() {
+        this.elements.aiProvider.value = this.aiConfig.provider;
+        this.elements.apiKey.value = this.aiConfig.apiKey;
+        this.elements.modelName.value = this.aiConfig.model;
+        this.elements.localUrl.value = this.aiConfig.localUrl;
+        this.updateProviderUI();
+    }
+
     initializeSpeechRecognition() {
-        // Check if browser supports Web Speech API
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
@@ -76,7 +114,6 @@ class VoiceRecorder {
         this.recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             if (event.error === 'no-speech') {
-                // Restart recognition if no speech detected
                 if (this.isRecording) {
                     this.recognition.start();
                 }
@@ -84,7 +121,6 @@ class VoiceRecorder {
         };
 
         this.recognition.onend = () => {
-            // Restart recognition if still recording
             if (this.isRecording) {
                 try {
                     this.recognition.start();
@@ -96,6 +132,14 @@ class VoiceRecorder {
     }
 
     setupEventListeners() {
+        // Config listeners
+        this.elements.toggleConfig.addEventListener('click', () => this.toggleConfig());
+        this.elements.saveConfig.addEventListener('click', () => this.saveConfiguration());
+        this.elements.testApi.addEventListener('click', () => this.testApiConnection());
+        this.elements.toggleApiKey.addEventListener('click', () => this.toggleApiKeyVisibility());
+        this.elements.aiProvider.addEventListener('change', () => this.updateProviderUI());
+
+        // Recording listeners
         this.elements.startBtn.addEventListener('click', () => this.startRecording());
         this.elements.stopBtn.addEventListener('click', () => this.stopRecording());
         this.elements.clearBtn.addEventListener('click', () => this.clearAll());
@@ -120,9 +164,239 @@ class VoiceRecorder {
         });
     }
 
-    async startRecording() {
+    toggleConfig() {
+        this.elements.configContent.classList.toggle('expanded');
+        this.elements.toggleConfig.textContent =
+            this.elements.configContent.classList.contains('expanded') ? '🔼' : '🔽';
+    }
+
+    updateProviderUI() {
+        const provider = this.elements.aiProvider.value;
+
+        // Update model options based on provider
+        if (provider === 'openai') {
+            this.elements.modelName.innerHTML = `
+                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                <option value="gpt-4o-mini">GPT-4o Mini (Faster/Cheaper)</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</option>
+            `;
+            this.elements.modelOption.style.display = 'flex';
+            this.elements.localUrlOption.style.display = 'none';
+        } else if (provider === 'anthropic') {
+            this.elements.modelName.innerHTML = `
+                <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Recommended)</option>
+                <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku (Faster)</option>
+                <option value="claude-3-opus-20240229">Claude 3 Opus (Most Capable)</option>
+            `;
+            this.elements.modelOption.style.display = 'flex';
+            this.elements.localUrlOption.style.display = 'none';
+        } else if (provider === 'openrouter') {
+            this.elements.modelName.innerHTML = `
+                <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                <option value="openai/gpt-4o">GPT-4o</option>
+                <option value="google/gemini-pro-1.5">Gemini Pro 1.5</option>
+                <option value="meta-llama/llama-3.1-70b-instruct">Llama 3.1 70B</option>
+            `;
+            this.elements.modelOption.style.display = 'flex';
+            this.elements.localUrlOption.style.display = 'none';
+        } else if (provider === 'local') {
+            this.elements.modelOption.style.display = 'none';
+            this.elements.localUrlOption.style.display = 'flex';
+        }
+    }
+
+    toggleApiKeyVisibility() {
+        const type = this.elements.apiKey.type;
+        this.elements.apiKey.type = type === 'password' ? 'text' : 'password';
+        this.elements.toggleApiKey.textContent = type === 'password' ? '🙈' : '👁️';
+    }
+
+    saveConfiguration() {
+        this.aiConfig = {
+            provider: this.elements.aiProvider.value,
+            apiKey: this.elements.apiKey.value,
+            model: this.elements.modelName.value,
+            localUrl: this.elements.localUrl.value
+        };
+        this.saveConfig();
+        this.showConfigStatus('Configuration saved!', 'success');
+    }
+
+    async testApiConnection() {
+        const testBtn = this.elements.testApi;
+        const originalText = testBtn.innerHTML;
+        testBtn.innerHTML = '<span class="loading-spinner"></span> Testing...';
+        testBtn.disabled = true;
+
         try {
-            // Request microphone access
+            const result = await this.callAI('Say "API connection successful!" if you can read this.');
+            if (result) {
+                this.showConfigStatus('✓ API connection successful!', 'success');
+            } else {
+                this.showConfigStatus('✗ API test failed', 'error');
+            }
+        } catch (error) {
+            this.showConfigStatus(`✗ Error: ${error.message}`, 'error');
+        } finally {
+            testBtn.innerHTML = originalText;
+            testBtn.disabled = false;
+        }
+    }
+
+    showConfigStatus(message, type) {
+        this.elements.configStatus.textContent = message;
+        this.elements.configStatus.className = `config-status ${type}`;
+        setTimeout(() => {
+            this.elements.configStatus.textContent = '';
+            this.elements.configStatus.className = 'config-status';
+        }, 5000);
+    }
+
+    async callAI(prompt) {
+        const config = this.aiConfig;
+
+        if (!config.apiKey && config.provider !== 'local') {
+            throw new Error('Please configure your API key first');
+        }
+
+        switch (config.provider) {
+            case 'openai':
+                return await this.callOpenAI(prompt);
+            case 'anthropic':
+                return await this.callAnthropic(prompt);
+            case 'openrouter':
+                return await this.callOpenRouter(prompt);
+            case 'local':
+                return await this.callLocal(prompt);
+            default:
+                throw new Error('Unknown AI provider');
+        }
+    }
+
+    async callOpenAI(prompt) {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.aiConfig.apiKey}`
+            },
+            body: JSON.stringify({
+                model: this.aiConfig.model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an expert note-taker. Create clear, well-structured notes from transcripts.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ],
+                temperature: 0.7
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error?.message || 'OpenAI API request failed');
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    }
+
+    async callAnthropic(prompt) {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': this.aiConfig.apiKey,
+                'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+                model: this.aiConfig.model,
+                max_tokens: 4096,
+                messages: [
+                    {
+                        role: 'user',
+                        content: `You are an expert note-taker. Create clear, well-structured notes from transcripts.\n\n${prompt}`
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error?.message || 'Anthropic API request failed');
+        }
+
+        const data = await response.json();
+        return data.content[0].text;
+    }
+
+    async callOpenRouter(prompt) {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.aiConfig.apiKey}`,
+                'HTTP-Referer': window.location.href,
+                'X-Title': 'Listen & Think'
+            },
+            body: JSON.stringify({
+                model: this.aiConfig.model,
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an expert note-taker. Create clear, well-structured notes from transcripts.'
+                    },
+                    {
+                        role: 'user',
+                        content: prompt
+                    }
+                ]
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error?.message || 'OpenRouter API request failed');
+        }
+
+        const data = await response.json();
+        return data.choices[0].message.content;
+    }
+
+    async callLocal(prompt) {
+        const response = await fetch(this.aiConfig.localUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'llama2', // Default model, user should configure
+                prompt: `You are an expert note-taker. Create clear, well-structured notes from transcripts.\n\n${prompt}`,
+                stream: false
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Local API request failed');
+        }
+
+        const data = await response.json();
+        return data.response;
+    }
+
+    async startRecording() {
+        // Check if AI is configured
+        if (!this.aiConfig.apiKey && this.aiConfig.provider !== 'local') {
+            if (confirm('AI is not configured. Notes will be basic text extraction. Configure AI in settings?')) {
+                this.toggleConfig();
+            }
+        }
+
+        try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
             this.mediaRecorder = new MediaRecorder(stream);
@@ -136,7 +410,6 @@ class VoiceRecorder {
 
             this.mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-                // Could save the audio blob if needed
                 stream.getTracks().forEach(track => track.stop());
             };
 
@@ -152,7 +425,7 @@ class VoiceRecorder {
             }
 
             this.elements.transcription.innerHTML = '<p class="placeholder">Listening...</p>';
-            this.elements.notes.innerHTML = '<p class="placeholder">Notes will be generated as you speak...</p>';
+            this.elements.notes.innerHTML = '<p class="placeholder">AI-generated notes will appear as you speak...</p>';
 
         } catch (error) {
             console.error('Error starting recording:', error);
@@ -177,7 +450,6 @@ class VoiceRecorder {
         this.stopAutoUpdate();
         this.updateUI();
 
-        // Final notes update
         if (this.transcript.trim()) {
             this.updateNotes();
             this.saveToHistory();
@@ -187,26 +459,22 @@ class VoiceRecorder {
     updateTranscription(finalText, interimText) {
         const transcriptionDiv = this.elements.transcription;
 
-        // Remove previous interim results
         const interim = transcriptionDiv.querySelector('.interim');
         if (interim) {
             interim.remove();
         }
 
-        // Add final text if any
         if (finalText.trim()) {
             const p = document.createElement('p');
             p.textContent = finalText.trim();
             transcriptionDiv.appendChild(p);
 
-            // Remove placeholder if exists
             const placeholder = transcriptionDiv.querySelector('.placeholder');
             if (placeholder) {
                 placeholder.remove();
             }
         }
 
-        // Add interim text
         if (interimText.trim()) {
             const interimP = document.createElement('p');
             interimP.className = 'interim';
@@ -214,29 +482,67 @@ class VoiceRecorder {
             transcriptionDiv.appendChild(interimP);
         }
 
-        // Auto-scroll to bottom
         transcriptionDiv.scrollTop = transcriptionDiv.scrollHeight;
-
-        // Enable update notes button
         this.elements.updateNotes.disabled = false;
     }
 
-    updateNotes() {
+    async updateNotes() {
         if (!this.transcript.trim()) return;
 
-        const notes = this.generateNotes(this.transcript);
-        this.elements.notes.innerHTML = notes;
+        const notesDiv = this.elements.notes;
+        const updateBtn = this.elements.updateNotes;
+        const originalText = updateBtn.innerHTML;
+
+        updateBtn.innerHTML = '<span class="loading-spinner"></span> Generating...';
+        updateBtn.disabled = true;
+
+        try {
+            const notes = await this.generateAINotes(this.transcript);
+            notesDiv.innerHTML = notes;
+        } catch (error) {
+            console.error('Error generating notes:', error);
+            notesDiv.innerHTML = `<p class="placeholder" style="color: var(--danger);">Error generating AI notes: ${error.message}<br><br>Using basic extraction instead...</p>`;
+            // Fallback to basic extraction
+            const basicNotes = this.generateBasicNotes(this.transcript);
+            notesDiv.innerHTML += basicNotes;
+        } finally {
+            updateBtn.innerHTML = originalText;
+            updateBtn.disabled = false;
+        }
     }
 
-    generateNotes(transcript) {
+    async generateAINotes(transcript) {
+        const prompt = `Analyze the following voice transcript and create comprehensive, well-structured notes. Your response should be in HTML format and include:
+
+1. **Executive Summary**: A 2-3 sentence overview rewritten in clear, grammatically correct language
+2. **Key Points**: Main ideas and insights (not just extracted sentences - rephrase for clarity)
+3. **Action Items**: Specific tasks, to-dos, or next steps mentioned
+4. **Important Details**: Numbers, dates, names, or other critical information
+5. **Questions & Decisions**: Any questions raised or decisions made
+
+Format your response with proper HTML using:
+- <h3> for section headers
+- <p> for paragraphs
+- <ul> and <li> for lists
+- <strong> for emphasis
+- Use clear, professional language
+- Fix any grammar or speech-to-text errors
+- Be concise but comprehensive
+
+Transcript:
+${transcript}`;
+
+        const aiResponse = await this.callAI(prompt);
+
+        return `<div class="generated-notes">${aiResponse}</div>`;
+    }
+
+    generateBasicNotes(transcript) {
         if (!transcript.trim()) {
             return '<p class="placeholder">Notes will be generated as you speak...</p>';
         }
 
-        // Split into sentences
         const sentences = transcript.match(/[^.!?]+[.!?]+/g) || [transcript];
-
-        // Extract key information
         const keyPoints = [];
         const actionItems = [];
         const questions = [];
@@ -245,74 +551,51 @@ class VoiceRecorder {
         sentences.forEach(sentence => {
             const trimmed = sentence.trim();
 
-            // Detect questions
             if (trimmed.includes('?')) {
                 questions.push(trimmed);
             }
 
-            // Detect action items (imperative sentences or containing action verbs)
-            const actionVerbs = ['need to', 'should', 'must', 'have to', 'going to', 'will', 'want to', 'plan to', 'remember to', 'don\'t forget'];
+            const actionVerbs = ['need to', 'should', 'must', 'have to', 'going to', 'will', 'want to', 'plan to'];
             if (actionVerbs.some(verb => trimmed.toLowerCase().includes(verb))) {
                 actionItems.push(trimmed);
             }
 
-            // Extract numbers/dates/times
             const numberMatch = trimmed.match(/\b\d+[.,]?\d*\b|\b(january|february|march|april|may|june|july|august|september|october|november|december)\b|\b\d{1,2}:\d{2}\b/gi);
             if (numberMatch) {
                 numbers.push({ text: trimmed, numbers: numberMatch });
             }
         });
 
-        // Generate bullet points from longer sentences
         const importantSentences = sentences
-            .filter(s => s.trim().split(' ').length > 5) // Longer sentences tend to be more informative
-            .slice(-10); // Get last 10 important sentences
+            .filter(s => s.trim().split(' ').length > 5)
+            .slice(-10);
 
-        // Build notes HTML
         let notesHTML = '<div class="generated-notes">';
 
-        // Summary
-        notesHTML += '<h3>📋 Summary</h3>';
-        notesHTML += '<ul>';
+        notesHTML += '<h3>📋 Key Points</h3><ul>';
         importantSentences.forEach(sentence => {
             notesHTML += `<li>${sentence.trim()}</li>`;
         });
         notesHTML += '</ul>';
 
-        // Action Items
         if (actionItems.length > 0) {
-            notesHTML += '<h3>✅ Action Items</h3>';
-            notesHTML += '<ul>';
+            notesHTML += '<h3>✅ Action Items</h3><ul>';
             actionItems.forEach(item => {
                 notesHTML += `<li>${item}</li>`;
             });
             notesHTML += '</ul>';
         }
 
-        // Questions Raised
         if (questions.length > 0) {
-            notesHTML += '<h3>❓ Questions</h3>';
-            notesHTML += '<ul>';
+            notesHTML += '<h3>❓ Questions</h3><ul>';
             questions.forEach(q => {
                 notesHTML += `<li>${q}</li>`;
             });
             notesHTML += '</ul>';
         }
 
-        // Numbers & Dates
-        if (numbers.length > 0) {
-            notesHTML += '<h3>🔢 Key Numbers/Dates</h3>';
-            notesHTML += '<ul>';
-            numbers.forEach(item => {
-                notesHTML += `<li>${item.text} <span style="color: var(--primary);">[${item.numbers.join(', ')}]</span></li>`;
-            });
-            notesHTML += '</ul>';
-        }
-
-        // Word count
         const wordCount = transcript.trim().split(/\s+/).length;
         notesHTML += `<p style="margin-top: 20px; color: var(--text-secondary); font-size: 0.9rem;">📊 Word count: ${wordCount}</p>`;
-
         notesHTML += '</div>';
 
         return notesHTML;
@@ -388,9 +671,8 @@ class VoiceRecorder {
             notes: this.elements.notes.innerHTML
         };
 
-        sessions.unshift(session); // Add to beginning
+        sessions.unshift(session);
 
-        // Keep only last 20 sessions
         if (sessions.length > 20) {
             sessions.splice(20);
         }
@@ -434,8 +716,6 @@ class VoiceRecorder {
                 this.elements.transcription.innerHTML = `<p>${session.transcript}</p>`;
                 this.elements.notes.innerHTML = session.notes;
                 this.elements.updateNotes.disabled = false;
-
-                // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             });
 
@@ -452,7 +732,9 @@ class VoiceRecorder {
 
     async copyToClipboard(text, label) {
         try {
-            await navigator.clipboard.writeText(text);
+            // Strip HTML tags for plain text copy
+            const plainText = text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ');
+            await navigator.clipboard.writeText(plainText);
             alert(`${label} copied to clipboard!`);
         } catch (error) {
             console.error('Failed to copy:', error);

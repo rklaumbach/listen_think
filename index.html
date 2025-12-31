@@ -14,6 +14,63 @@
         </header>
 
         <div class="main-content">
+            <!-- AI Configuration -->
+            <div class="panel config-panel">
+                <div class="panel-header">
+                    <h2>⚙️ AI Configuration</h2>
+                    <button id="toggleConfig" class="btn-icon" title="Toggle settings">🔽</button>
+                </div>
+                <div class="panel-content config-content" id="configContent">
+                    <div class="config-grid">
+                        <div class="config-option">
+                            <label for="aiProvider">AI Provider:</label>
+                            <select id="aiProvider" class="config-input">
+                                <option value="openai">OpenAI (GPT-4/3.5)</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                                <option value="openrouter">OpenRouter (Multiple Models)</option>
+                                <option value="local">Local API (Ollama/LM Studio)</option>
+                            </select>
+                        </div>
+
+                        <div class="config-option">
+                            <label for="apiKey">API Key:</label>
+                            <input type="password" id="apiKey" class="config-input" placeholder="Enter your API key">
+                            <button id="toggleApiKey" class="btn-icon btn-inline">👁️</button>
+                        </div>
+
+                        <div class="config-option" id="modelOption">
+                            <label for="modelName">Model:</label>
+                            <select id="modelName" class="config-input">
+                                <option value="gpt-4o">GPT-4o (Recommended)</option>
+                                <option value="gpt-4o-mini">GPT-4o Mini (Faster/Cheaper)</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Budget)</option>
+                            </select>
+                        </div>
+
+                        <div class="config-option" id="localUrlOption" style="display: none;">
+                            <label for="localUrl">Local API URL:</label>
+                            <input type="text" id="localUrl" class="config-input" placeholder="http://localhost:11434/api/generate" value="http://localhost:11434/api/generate">
+                        </div>
+                    </div>
+
+                    <div class="config-actions">
+                        <button id="saveConfig" class="btn btn-primary btn-small">💾 Save Configuration</button>
+                        <button id="testApi" class="btn btn-secondary btn-small">🧪 Test API</button>
+                        <span id="configStatus" class="config-status"></span>
+                    </div>
+
+                    <div class="config-help">
+                        <p><strong>Need an API key?</strong></p>
+                        <ul>
+                            <li><a href="https://platform.openai.com/api-keys" target="_blank">OpenAI API Keys</a></li>
+                            <li><a href="https://console.anthropic.com/" target="_blank">Anthropic API Keys</a></li>
+                            <li><a href="https://openrouter.ai/keys" target="_blank">OpenRouter API Keys</a></li>
+                            <li>For local: Install <a href="https://ollama.ai" target="_blank">Ollama</a> or <a href="https://lmstudio.ai" target="_blank">LM Studio</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- Recording Controls -->
             <div class="controls-section">
                 <div class="recording-status" id="recordingStatus">
