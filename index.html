@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listen & Think - Voice Recorder with Notes</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎙️ Listen & Think</h1>
+            <p class="subtitle">Record • Transcribe • Note</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Recording Controls -->
+            <div class="controls-section">
+                <div class="recording-status" id="recordingStatus">
+                    <span class="status-indicator"></span>
+                    <span class="status-text">Ready to record</span>
+                </div>
+
+                <div class="control-buttons">
+                    <button id="startBtn" class="btn btn-primary">
+                        <span class="icon">⏺</span> Start Recording
+                    </button>
+                    <button id="stopBtn" class="btn btn-danger" disabled>
+                        <span class="icon">⏹</span> Stop Recording
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        <span class="icon">🗑️</span> Clear All
+                    </button>
+                </div>
+
+                <div class="timer" id="timer">00:00</div>
+            </div>
+
+            <!-- Two Column Layout -->
+            <div class="content-grid">
+                <!-- Left Column: Transcription -->
+                <div class="panel transcription-panel">
+                    <div class="panel-header">
+                        <h2>📝 Verbatim Transcription</h2>
+                        <button id="copyTranscript" class="btn-icon" title="Copy transcript">📋</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="transcription" class="transcription-area">
+                            <p class="placeholder">Your transcription will appear here as you speak...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Notes -->
+                <div class="panel notes-panel">
+                    <div class="panel-header">
+                        <h2>💡 Smart Notes</h2>
+                        <button id="copyNotes" class="btn-icon" title="Copy notes">📋</button>
+                    </div>
+                    <div class="panel-content">
+                        <div id="notes" class="notes-area">
+                            <p class="placeholder">AI-generated notes and key points will appear here...</p>
+                        </div>
+                        <div class="notes-controls">
+                            <button id="updateNotes" class="btn btn-secondary btn-small" disabled>
+                                <span class="icon">🔄</span> Update Notes
+                            </button>
+                            <label class="auto-update-toggle">
+                                <input type="checkbox" id="autoUpdate" checked>
+                                <span>Auto-update every <input type="number" id="updateInterval" value="30" min="10" max="300" style="width: 50px;"> seconds</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Session History -->
+            <div class="panel history-panel">
+                <div class="panel-header">
+                    <h2>📚 Session History</h2>
+                    <button id="clearHistory" class="btn-icon" title="Clear history">🗑️</button>
+                </div>
+                <div class="panel-content">
+                    <div id="history" class="history-area">
+                        <p class="placeholder">Previous recordings will appear here...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Tip: Works best in Chrome/Edge. Make sure to allow microphone access.</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

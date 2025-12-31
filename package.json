@@ -1,0 +1,17 @@
+{
+  "name": "listen-think",
+  "version": "1.0.0",
+  "description": "Voice recorder with real-time transcription and note-taking for productivity",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "voice-recorder",
+    "transcription",
+    "notes",
+    "productivity"
+  ],
+  "author": "",
+  "license": "MIT"
+}
